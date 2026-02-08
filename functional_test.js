@@ -7,8 +7,6 @@ const http = require("node:http");
 const https = require("node:https");
 const { URL } = require("node:url");
 const { PrismaClient } = require("@prisma/client");
-const { PrismaPg } = require("@prisma/adapter-pg");
-const { Pool } = require("pg");
 
 function requestJson(url, { method = "GET", headers = {}, body } = {}) {
   return new Promise((resolve, reject) => {
@@ -60,9 +58,7 @@ async function main() {
     throw new Error("API_BASE_URL is required");
   }
   const BASE_URL = new URL("/api", API_BASE_URL).toString().replace(/\/$/, "");
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const adapter = new PrismaPg(pool);
-  const prisma = new PrismaClient({ adapter });
+  const prisma = new PrismaClient();
   let restoreProductId = null;
   let restoreProductData = null;
 
