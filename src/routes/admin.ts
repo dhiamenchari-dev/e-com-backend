@@ -715,10 +715,6 @@ async function saveLocalLogo(req: AuthedRequest, file: Express.Multer.File): Pro
   await fs.writeFile(path.join(dir, filename), file.buffer);
 
   const origin = `${req.protocol}://${req.get("host")}`;
-  // Ensure we use the correct port for localhost development if needed, but req.get("host") should be sufficient.
-  // However, if the client is accessing via localhost:4000 and the server thinks it's something else, we might need adjustment.
-  // For now, let's stick to what works for products, but double check the path.
-  // Windows paths might use backslashes, but URLs need forward slashes.
   return {
     url: `${origin}/uploads/site/${filename}`,
     publicId: `local:site/${filename}`,

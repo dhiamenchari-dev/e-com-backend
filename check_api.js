@@ -3,6 +3,11 @@ const http = require("node:http");
 const https = require("node:https");
 const { URL } = require("node:url");
 
+const API_BASE_URL = process.env.API_BASE_URL;
+if (!API_BASE_URL) {
+  throw new Error("API_BASE_URL is required");
+}
+
 function requestJson(url) {
   return new Promise((resolve, reject) => {
     const u = new URL(url);
@@ -41,10 +46,14 @@ function requestJson(url) {
   });
 }
 
+function apiUrl(path) {
+  return new URL(path, API_BASE_URL).toString();
+}
+
 async function main() {
   try {
     console.log("Checking /api/products/featured...");
-    const resFeatured = await requestJson("http://localhost:4000/api/products/featured");
+    const resFeatured = await requestJson(apiUrl("/api/products/featured"));
     const dataFeatured = resFeatured.json;
     console.log("Featured Status:", resFeatured.status);
     if (dataFeatured.items && dataFeatured.items.length > 0) {
@@ -54,12 +63,12 @@ async function main() {
     }
 
     console.log("\nChecking /api/products...");
-    const resList = await requestJson("http://localhost:4000/api/products?page=1&limit=10");
+    const resList = await requestJson(apiUrl("/api/products?page=1&limit=10"));
     const dataList = resList.json;
     console.log("List Status:", resList.status);
     if (dataList.items && dataList.items.length > 0) {
       console.log("List First item slug:", dataList.items[0].slug);
-      const missing = dataList.items.filter(i => !i.slug);
+      const missing = dataList.items.filter((i) => !i.slug);
       console.log("List items missing slug:", missing.length);
     } else {
       console.log("List No items");

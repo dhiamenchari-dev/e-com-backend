@@ -18,7 +18,24 @@ import { settingsRouter } from "./routes/settings";
 export function createApp() {
   const app = express();
 
+  app.set("trust proxy", env.NODE_ENV === "production");
   app.disable("x-powered-by");
+  const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+  app.use((req, res, next) => {
+    const now = Date.now();
+    const key = req.ip ?? req.socket.remoteAddress ?? "unknown";
+    const existing = rateBuckets.get(key);
+    if (!existing || existing.resetAt <= now) {
+      rateBuckets.set(key, { count: 1, resetAt: now + env.RATE_LIMIT_WINDOW_MS });
+      return next();
+    }
+    if (existing.count >= env.RATE_LIMIT_MAX) {
+      res.status(429).json({ error: { message: "Too many requests" } });
+      return;
+    }
+    existing.count += 1;
+    return next();
+  });
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: "cross-origin" },

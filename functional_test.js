@@ -1,5 +1,7 @@
 
-require("dotenv/config");
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv/config");
+}
 
 const http = require("node:http");
 const https = require("node:https");
@@ -53,7 +55,11 @@ function requestJson(url, { method = "GET", headers = {}, body } = {}) {
 }
 
 async function main() {
-  const BASE_URL = "http://localhost:4000/api";
+  const API_BASE_URL = process.env.API_BASE_URL;
+  if (!API_BASE_URL) {
+    throw new Error("API_BASE_URL is required");
+  }
+  const BASE_URL = new URL("/api", API_BASE_URL).toString().replace(/\/$/, "");
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
