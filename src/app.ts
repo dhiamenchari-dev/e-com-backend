@@ -46,6 +46,7 @@ export function createApp() {
       origin: (origin, cb) => {
         if (!origin) return cb(null, true);
         if (env.NODE_ENV !== "production") return cb(null, true);
+        if (!env.FRONTEND_ORIGIN) return cb(null, true);
         return cb(null, origin === env.FRONTEND_ORIGIN);
       },
       credentials: true,
