@@ -20,6 +20,10 @@ export function createApp() {
 
   app.set("trust proxy", env.NODE_ENV === "production");
   app.disable("x-powered-by");
+  const allowedOrigins = (env.FRONTEND_ORIGIN ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
   const rateBuckets = new Map<string, { count: number; resetAt: number }>();
   app.use((req, res, next) => {
     const now = Date.now();
@@ -46,8 +50,8 @@ export function createApp() {
       origin: (origin, cb) => {
         if (!origin) return cb(null, true);
         if (env.NODE_ENV !== "production") return cb(null, true);
-        if (!env.FRONTEND_ORIGIN) return cb(null, true);
-        return cb(null, origin === env.FRONTEND_ORIGIN);
+        if (allowedOrigins.length === 0) return cb(null, true);
+        return cb(null, allowedOrigins.includes(origin));
       },
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
