@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "prisma generate && tsc -p tsconfig.json",
-    "postbuild": "node -e \"require('fs').mkdirSync('dist',{recursive:true})\"",
+    "postbuild": "node -e \"const fs=require('fs');const path=require('path');fs.mkdirSync('dist',{recursive:true});const parent=path.resolve(process.cwd(),'..');const parentPkg=path.join(parent,'package.json');if(fs.existsSync(parentPkg)){const pkg=JSON.parse(fs.readFileSync(parentPkg,'utf8'));const ws=Array.isArray(pkg.workspaces)?pkg.workspaces:[];if(ws.includes('backend')){fs.mkdirSync(path.join(parent,'dist'),{recursive:true});}}\"",
     "start": "node dist/index.js",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
