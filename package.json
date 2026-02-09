@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "prisma generate && tsc -p tsconfig.json",
     "postbuild": "node -e \"const fs=require('fs');const path=require('path');const cwd=process.cwd();const sourceDist=path.join(cwd,'dist');const ensure=(p)=>fs.mkdirSync(p,{recursive:true});const copy=(from,to)=>{if(!fs.existsSync(from))return;ensure(to);for(const entry of fs.readdirSync(from)){fs.cpSync(path.join(from,entry),path.join(to,entry),{recursive:true});}};const hasWorkspaces=(pkgPath)=>{try{const pkg=JSON.parse(fs.readFileSync(pkgPath,'utf8'));return Array.isArray(pkg.workspaces)&&pkg.workspaces.includes('backend');}catch{return false;}};ensure(sourceDist);const roots=[cwd];const cwdPkg=path.join(cwd,'package.json');if(hasWorkspaces(cwdPkg)){const backendRoot=path.join(cwd,'backend');if(fs.existsSync(backendRoot))roots.push(backendRoot);}const parent=path.resolve(cwd,'..');const parentPkg=path.join(parent,'package.json');if(hasWorkspaces(parentPkg)){roots.push(parent);const parentBackend=path.join(parent,'backend');if(fs.existsSync(parentBackend))roots.push(parentBackend);}for(const root of roots){const target=path.join(root,'dist');if(path.resolve(target)===path.resolve(sourceDist))continue;copy(sourceDist,target);} \"",
-    "start": "node dist/index.js",
+    "start": "prisma migrate deploy && node dist/index.js",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prisma:generate": "prisma generate",
